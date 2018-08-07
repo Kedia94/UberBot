@@ -1,4 +1,5 @@
 #pragma once
+#include <Windows.h>
 #define BUFFER_SIZE 100
 
 #define TARGET_IP1 "121"
@@ -13,3 +14,7 @@ struct ip_header {
 
 /* get first game room info */
 struct ip_header get_ip();
+HWND get_diablo();
+void type_diablo(HWND hwnd, char* title, int title_len, int postfix, char* passwd, int passwd_len);
+bool check_ip(int ip);
+void exit_diablo(HWND hwnd);

@@ -147,6 +147,7 @@
     <ClCompile Include="UberBot.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Main.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="UberBot.h" />
   </ItemGroup>

@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <string>
+#include <Windows.h>
 
 #include "UberBot.h"
 
@@ -54,4 +55,66 @@ struct ip_header get_ip()
 	struct ip_header ret;
 	memset(&ret, 0, sizeof(ret));
 	return ret;
+}
+
+HWND get_diablo()
+{
+	return FindWindow(NULL, "Diablo II");
+}
+
+void type_diablo(HWND hwnd, char* title, int title_len, int postfix, char* passwd, int passwd_len)
+{
+
+	for (int i = 0; i < title_len; i++)
+	{
+		if (title[i] >= 'a' && title[i] <= 'z')
+			title[i] += 'A' - 'a';
+		PostMessage(hwnd, WM_KEYUP, title[i], 0);
+	}
+
+	char a[5];
+	strcpy_s(a, std::to_string(postfix).size()+1, std::to_string(postfix).c_str());
+	for (int i = 0; i < strlen(a); i++)
+	{
+		PostMessage(hwnd, WM_KEYUP, a[i], 0);
+	}
+
+	PostMessage(hwnd, WM_KEYDOWN, 0x09, 0);
+	PostMessage(hwnd, WM_KEYUP, 0x09, 0);
+	Sleep(50);
+
+
+	for (int i = 0; i < passwd_len; i++)
+	{
+		if (passwd[i] >= 'a' && passwd[i] <= 'z')
+			passwd[i] += 'A' - 'a';
+		PostMessage(hwnd, WM_KEYUP, passwd[i], 0);
+	}
+	Sleep(50);
+	
+	PostMessage(hwnd, WM_KEYDOWN, 0x0d, 0);
+	PostMessage(hwnd, WM_KEYUP, 0x0d, 0);
+	
+}
+
+bool check_ip(int ip)
+{
+	struct ip_header getip = get_ip();
+	return (ip == getip.ip[3]);
+}
+
+void exit_diablo(HWND hwnd)
+{
+	PostMessage(hwnd, WM_KEYDOWN, 0x1b, 0);
+	PostMessage(hwnd, WM_KEYUP, 0x1b, 0);
+
+	Sleep(50);
+
+	PostMessage(hwnd, WM_KEYDOWN, 0x26, 0);
+	PostMessage(hwnd, WM_KEYUP, 0x26, 0);
+
+	Sleep(50);
+
+	PostMessage(hwnd, WM_KEYDOWN, 0x0d, 0);
+	PostMessage(hwnd, WM_KEYUP, 0x0d, 0);
 }

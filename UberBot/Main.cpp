@@ -8,7 +8,7 @@
 #include <string>
 #include <cstdio>
 
-#include "UberBot.h"
+#include "Main.h"
 #include "resource.h"
 
 // Global variables
@@ -60,11 +60,22 @@ int CALLBACK WinMain(
 		return 1;
 	}
 
-	ips = get_ip();
-	b += std::to_string(ips.ip[3]);
-	fprintf(stdout, "%s\n", a);
+	//ips = get_ip();
+	//b += std::to_string(ips.ip[3]);
+	//fprintf(stdout, "%s\n", a);
+	//OutputDebugString(std::to_string(ips.ip[3]).c_str());
 
+	HWND h_wnd = get_diablo();
+	//if (!SetForegroundWindow(h_wnd)) {
+	//	OutputDebugStringA("Couldn't set application to foreground.");
+	//}
+	char name[10] = "testid";
+	char passwd[10] = "123";
+	//type_diablo(h_wnd, name, 6, 12, passwd, 3);
 
+	if (!check_ip(111))
+		exit_diablo(h_wnd);
+	
 	// Store instance handle in our global variable
 	hInst = hInstance;
 
@@ -117,6 +128,10 @@ int CALLBACK WinMain(
 
 	return (int)msg.wParam;
 }
+HWND hEditSource;
+HFONT hFont;
+HWND hControl;
+HWND hWndNew;
 
 //  FUNCTION: WndProc(HWND, UINT, WPARAM, LPARAM)
 //
@@ -129,9 +144,31 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	PAINTSTRUCT ps;
 	HDC hdc;
 
+	LPCSTR WC_EDIT = "Hi";
+	int CONTROL_MARGIN = 10;
+	int EDIT_WIDTH = 300;
+	int CONTROL_HEIGHT = 24;
+	int ID_EDIT_SRC = 10;
+	int FONT_SIZE = 16;
+	LPCSTR FONT_FACE = "Segoe UI";
 
 	switch (message)
 	{
+	case WM_CREATE:
+		hControl = CreateWindow(TEXT("button"), TEXT("Show stdout"), WS_CHILD | WS_VISIBLE | WS_BORDER, 10, 10, 200, 24, hWnd, (HMENU)ID_BUTTON_CONTROL, ((LPCREATESTRUCT)lParam)->hInstance, NULL);
+		
+
+		break;
+
+	case WM_COMMAND:
+		switch (LOWORD(wParam))
+		{
+		case ID_BUTTON_CONTROL: break;
+
+
+		}
+		break;
+		/*
 	case WM_PAINT:
 		hdc = BeginPaint(hWnd, &ps);
 
@@ -145,6 +182,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 		EndPaint(hWnd, &ps);
 		break;
+		*/
 	case WM_DESTROY:
 		PostQuitMessage(0);
 		break;
