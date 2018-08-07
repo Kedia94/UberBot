@@ -36,7 +36,7 @@
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
-    <Image Include="..\..\..\..\Desktop\Game_103.ico">
+    <Image Include="Icon\Game_103.ico">
       <Filter>리소스 파일</Filter>
     </Image>
   </ItemGroup>
