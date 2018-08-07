@@ -64,7 +64,7 @@ HWND get_diablo()
 
 void type_diablo(HWND hwnd, char* title, int title_len, int postfix, char* passwd, int passwd_len)
 {
-
+	// Title
 	for (int i = 0; i < title_len; i++)
 	{
 		if (title[i] >= 'a' && title[i] <= 'z')
@@ -72,6 +72,7 @@ void type_diablo(HWND hwnd, char* title, int title_len, int postfix, char* passw
 		PostMessage(hwnd, WM_KEYUP, title[i], 0);
 	}
 
+	// Postfix
 	char a[5];
 	strcpy_s(a, std::to_string(postfix).size()+1, std::to_string(postfix).c_str());
 	for (int i = 0; i < strlen(a); i++)
@@ -79,22 +80,26 @@ void type_diablo(HWND hwnd, char* title, int title_len, int postfix, char* passw
 		PostMessage(hwnd, WM_KEYUP, a[i], 0);
 	}
 
+	// TAB
 	PostMessage(hwnd, WM_KEYDOWN, 0x09, 0);
 	PostMessage(hwnd, WM_KEYUP, 0x09, 0);
 	Sleep(50);
 
-
+	// Password
 	for (int i = 0; i < passwd_len; i++)
 	{
 		if (passwd[i] >= 'a' && passwd[i] <= 'z')
 			passwd[i] += 'A' - 'a';
 		PostMessage(hwnd, WM_KEYUP, passwd[i], 0);
 	}
+
 	Sleep(50);
 	
+	// Enter
 	PostMessage(hwnd, WM_KEYDOWN, 0x0d, 0);
 	PostMessage(hwnd, WM_KEYUP, 0x0d, 0);
 	
+	Sleep(50);
 }
 
 bool check_ip(int ip)
@@ -103,18 +108,44 @@ bool check_ip(int ip)
 	return (ip == getip.ip[3]);
 }
 
+int MakeLParam(int LoWord, int HiWord)
+{
+	return (int)((HiWord << 16) | (LoWord & 0xFFFF));
+}
+
 void exit_diablo(HWND hwnd)
 {
+	// ESC
 	PostMessage(hwnd, WM_KEYDOWN, 0x1b, 0);
 	PostMessage(hwnd, WM_KEYUP, 0x1b, 0);
 
 	Sleep(50);
 
-	PostMessage(hwnd, WM_KEYDOWN, 0x26, 0);
-	PostMessage(hwnd, WM_KEYUP, 0x26, 0);
+	SendMessage(hwnd, WM_LBUTTONDOWN, 0x01, MakeLParam(400, 280));
 
 	Sleep(50);
 
-	PostMessage(hwnd, WM_KEYDOWN, 0x0d, 0);
-	PostMessage(hwnd, WM_KEYUP, 0x0d, 0);
+	PostMessage(hwnd, WM_LBUTTONUP, 0x01, MakeLParam(400, 280));
+
+	Sleep(50);
+}
+
+
+void click_create_diablo(HWND hwnd)
+{
+	RECT rect = { 0 };
+	GetWindowRect(hwnd, &rect);
+
+	//SetForegroundWindow(hwnd);
+	//SetActiveWindow(hwnd);
+	//SetFocus(hwnd);
+	//Sleep(300);
+
+	SendMessage(hwnd, WM_LBUTTONDOWN, 0x01, MakeLParam(590, 465));
+
+	Sleep(50);
+
+	PostMessage(hwnd, WM_LBUTTONUP, 0x01, MakeLParam(590, 465));
+
+	Sleep(50);
 }

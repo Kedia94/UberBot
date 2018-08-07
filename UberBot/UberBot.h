@@ -18,3 +18,4 @@ HWND get_diablo();
 void type_diablo(HWND hwnd, char* title, int title_len, int postfix, char* passwd, int passwd_len);
 bool check_ip(int ip);
 void exit_diablo(HWND hwnd);
+void click_create_diablo(HWND hwnd);

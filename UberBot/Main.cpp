@@ -71,6 +71,7 @@ int CALLBACK WinMain(
 	//}
 	char name[10] = "testid";
 	char passwd[10] = "123";
+	//click_create_diablo(h_wnd);
 	//type_diablo(h_wnd, name, 6, 12, passwd, 3);
 
 	if (!check_ip(111))
