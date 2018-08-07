@@ -9,6 +9,7 @@
 #include <cstdio>
 
 #include "UberBot.h"
+#include "resource.h"
 
 // Global variables
 std::string b = "Hello";
@@ -42,12 +43,12 @@ int CALLBACK WinMain(
 	wcex.cbClsExtra = 0;
 	wcex.cbWndExtra = 0;
 	wcex.hInstance = hInstance;
-	wcex.hIcon = LoadIcon(hInstance, IDI_APPLICATION);
+	wcex.hIcon = LoadIcon(hInstance, (LPCTSTR)IDI_ICON1);
 	wcex.hCursor = LoadCursor(NULL, IDC_ARROW);
 	wcex.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
 	wcex.lpszMenuName = NULL;
 	wcex.lpszClassName = szWindowClass;
-	wcex.hIconSm = LoadIcon(wcex.hInstance, IDI_APPLICATION);
+	wcex.hIconSm = LoadIcon(wcex.hInstance, (LPCTSTR)IDI_ICON1);
 
 	if (!RegisterClassEx(&wcex))
 	{

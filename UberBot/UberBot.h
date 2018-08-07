@@ -7,8 +7,9 @@
 #define TARGET_PORT 4000
 
 struct ip_header {
-	int ip[4];
+	int ip[4];	// ip: ip0.ip1.ip2.ip3
 	int port;
 };
 
+/* get first game room info */
 struct ip_header get_ip();
