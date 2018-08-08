@@ -45,7 +45,7 @@ int CALLBACK WinMain(
 	wcex.hInstance = hInstance;
 	wcex.hIcon = LoadIcon(hInstance, (LPCTSTR)IDI_ICON1);
 	wcex.hCursor = LoadCursor(NULL, IDC_ARROW);
-	wcex.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
+	wcex.hbrBackground = (HBRUSH)(COLOR_WINDOW);
 	wcex.lpszMenuName = NULL;
 	wcex.lpszClassName = szWindowClass;
 	wcex.hIconSm = LoadIcon(wcex.hInstance, (LPCTSTR)IDI_ICON1);
@@ -68,14 +68,15 @@ int CALLBACK WinMain(
 	HWND h_wnd = get_diablo();
 	//if (!SetForegroundWindow(h_wnd)) {
 	//	OutputDebugStringA("Couldn't set application to foreground.");
+	//_RPT1(0, "%d\n", 1);
 	//}
 	char name[10] = "testid";
 	char passwd[10] = "123";
 	//click_create_diablo(h_wnd);
 	//type_diablo(h_wnd, name, 6, 12, passwd, 3);
 
-	if (!check_ip(111))
-		exit_diablo(h_wnd);
+	//if (!check_ip(111))
+	//	exit_diablo(h_wnd);
 	
 	// Store instance handle in our global variable
 	hInst = hInstance;
@@ -95,7 +96,7 @@ int CALLBACK WinMain(
 		szTitle,
 		WS_OVERLAPPEDWINDOW,
 		CW_USEDEFAULT, CW_USEDEFAULT,
-		500, 500,
+		315, 260,
 		NULL,
 		NULL,
 		hInstance,
@@ -129,10 +130,23 @@ int CALLBACK WinMain(
 
 	return (int)msg.wParam;
 }
-HWND hEditSource;
-HFONT hFont;
-HWND hControl;
-HWND hWndNew;
+
+HWND hIPGroup;
+HWND hIPList;
+HWND hIPAdd;
+HWND hIPDel;
+
+HWND hSettingGroup;
+HWND hGameGroup;
+HWND hGameNameButton;
+HWND hGamePasswdButton;
+HWND hWaitGroup;
+HWND hWaitLobbyButton;
+HWND hWaitGameButton;
+
+HWND hStartStop;
+HWND hExit;
+HWND hAbout;
 
 //  FUNCTION: WndProc(HWND, UINT, WPARAM, LPARAM)
 //
@@ -150,13 +164,43 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	int EDIT_WIDTH = 300;
 	int CONTROL_HEIGHT = 24;
 	int ID_EDIT_SRC = 10;
+	int ID_BUTTON_OPEN_SRC = 20;
 	int FONT_SIZE = 16;
 	LPCSTR FONT_FACE = "Segoe UI";
 
 	switch (message)
 	{
 	case WM_CREATE:
-		hControl = CreateWindow(TEXT("button"), TEXT("Show stdout"), WS_CHILD | WS_VISIBLE | WS_BORDER, 10, 10, 200, 24, hWnd, (HMENU)ID_BUTTON_CONTROL, ((LPCREATESTRUCT)lParam)->hInstance, NULL);
+		hIPGroup = CreateWindow(TEXT("button"), TEXT("IP List"), WS_CHILD | WS_VISIBLE | BS_GROUPBOX, LEFT_MARGIN, TOP_MARGIN, 70, 172, hWnd, (HMENU)0, ((LPCREATESTRUCT)lParam)->hInstance, NULL);
+		hIPList = CreateWindow(TEXT("listbox"), NULL, WS_CHILD | WS_VISIBLE | LBS_MULTIPLESEL | LBS_SORT, 2 * LEFT_MARGIN, 30, 50, 112, hWnd, (HMENU)ID_IP_LIST, ((LPCREATESTRUCT)lParam)->hInstance, NULL);
+		{
+			SendMessage(hIPList, LB_ADDSTRING, 0, (LPARAM)"123");
+			SendMessage(hIPList, LB_ADDSTRING, 0, (LPARAM)"124");
+			SendMessage(hIPList, LB_ADDSTRING, 0, (LPARAM)"100");
+			SendMessage(hIPList, LB_ADDSTRING, 0, (LPARAM)"182");
+			SendMessage(hIPList, LB_ADDSTRING, 0, (LPARAM)"165");
+			SendMessage(hIPList, LB_ADDSTRING, 0, (LPARAM)"172");
+			SendMessage(hIPList, LB_ADDSTRING, 0, (LPARAM)"173");
+		}
+		hIPAdd = CreateWindow(TEXT("button"), TEXT("+"), WS_CHILD | WS_VISIBLE | WS_BORDER, 2 * LEFT_MARGIN, TOP_MARGIN + 142, 20, 20, hWnd, (HMENU)ID_BUTTON_ADD_IP, ((LPCREATESTRUCT)lParam)->hInstance, NULL);
+		hIPDel = CreateWindow(TEXT("button"), TEXT("-"), WS_CHILD | WS_VISIBLE | WS_BORDER, 3 * LEFT_MARGIN + 20, TOP_MARGIN + 142, 20, 20, hWnd, (HMENU)ID_BUTTON_REMOVE_IP, ((LPCREATESTRUCT)lParam)->hInstance, NULL);
+
+		hSettingGroup = CreateWindow(TEXT("button"), TEXT("Settings"), WS_CHILD | WS_VISIBLE | BS_GROUPBOX, LEFT_MARGIN + 80, TOP_MARGIN, 200, 172, hWnd, (HMENU)0, ((LPCREATESTRUCT)lParam)->hInstance, NULL);
+		hGameGroup = CreateWindow(TEXT("button"), TEXT("Game Info"), WS_CHILD | WS_VISIBLE | BS_GROUPBOX, 2 * LEFT_MARGIN + 80, 30, 180, 66, hWnd, (HMENU)0, ((LPCREATESTRUCT)lParam)->hInstance, NULL);
+		hGameNameButton = CreateWindow(TEXT("edit"), TEXT("Title:"), WS_CHILD | WS_VISIBLE, 3 * LEFT_MARGIN + 80, 50, 70, 16, hWnd, (HMENU)0, ((LPCREATESTRUCT)lParam)->hInstance, NULL);
+		hGamePasswdButton = CreateWindow(TEXT("edit"), TEXT("Password:"), WS_CHILD | WS_VISIBLE, 3 * LEFT_MARGIN + 80, 70, 70, 16, hWnd, (HMENU)0, ((LPCREATESTRUCT)lParam)->hInstance, NULL);
+		hWaitGroup = CreateWindow(TEXT("button"), TEXT("Waiting Info"), WS_CHILD | WS_VISIBLE | BS_GROUPBOX, 2 * LEFT_MARGIN + 80, 106, 180, 66, hWnd, (HMENU)0, ((LPCREATESTRUCT)lParam)->hInstance, NULL);
+		hWaitLobbyButton = CreateWindow(TEXT("edit"), TEXT("Lobby (s):"), WS_CHILD | WS_VISIBLE, 3 * LEFT_MARGIN + 80, 126, 70, 16, hWnd, (HMENU)0, ((LPCREATESTRUCT)lParam)->hInstance, NULL);
+		hWaitGameButton = CreateWindow(TEXT("edit"), TEXT("Room (s):"), WS_CHILD | WS_VISIBLE, 3 * LEFT_MARGIN + 80, 146, 70, 16, hWnd, (HMENU)0, ((LPCREATESTRUCT)lParam)->hInstance, NULL);
+
+		hStartStop = CreateWindow(TEXT("button"), TEXT("Start"), WS_CHILD | WS_VISIBLE | WS_BORDER, 11 + LEFT_MARGIN, 190, BUTTON_W, BUTTON_H, hWnd, (HMENU)ID_BUTTON_STARTSTOP, ((LPCREATESTRUCT)lParam)->hInstance, NULL);
+		hExit = CreateWindow(TEXT("button"), TEXT("Exit"), WS_CHILD | WS_VISIBLE | WS_BORDER, 21 + 2 * LEFT_MARGIN + BUTTON_W, 190, BUTTON_W, BUTTON_H, hWnd, (HMENU)ID_BUTTON_EXIT, ((LPCREATESTRUCT)lParam)->hInstance, NULL);
+		hAbout = CreateWindow(TEXT("button"), TEXT("About"), WS_CHILD | WS_VISIBLE | WS_BORDER, 31 + 3 * LEFT_MARGIN + 2 * BUTTON_W, 190, BUTTON_W, BUTTON_H, hWnd, (HMENU)ID_BUTTON_ABOUT, ((LPCREATESTRUCT)lParam)->hInstance, NULL);
+		
+
+		_RPT1(0, "%s", "button");
+		_RPT1(0, "%s", TEXT("button"));
+		
 		
 
 		break;
@@ -164,9 +208,24 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	case WM_COMMAND:
 		switch (LOWORD(wParam))
 		{
-		case ID_BUTTON_CONTROL: break;
-
-
+		case ID_BUTTON_STARTSTOP:
+			MessageBox(hWnd, "Start", "Developing", MB_OK);
+			break;
+		case ID_BUTTON_EXIT:
+			exit(0);
+			break;
+		case ID_BUTTON_ABOUT: 
+			MessageBox(hWnd, "Uber Room Finder v0.1\nMade By πŸ∫∏∏€√ª¿Ã\nSpecial Thanks to HO", "About", MB_OK);
+			break;
+		case ID_BUTTON_SETTING:
+			MessageBox(hWnd, "Setting", "Developing", MB_OK);
+			break;
+		case ID_BUTTON_ADD_IP:
+			MessageBox(hWnd, "ADD IP", "Developing", MB_OK);
+			break;
+		case ID_BUTTON_REMOVE_IP:
+			MessageBox(hWnd, "DEL IP", "Developing", MB_OK);
+			break;
 		}
 		break;
 		/*
