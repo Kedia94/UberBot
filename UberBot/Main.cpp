@@ -96,7 +96,7 @@ int CALLBACK WinMain(
 		szTitle,
 		WS_OVERLAPPEDWINDOW,
 		CW_USEDEFAULT, CW_USEDEFAULT,
-		315, 260,
+		285, 260,
 		NULL,
 		NULL,
 		hInstance,
@@ -138,11 +138,15 @@ HWND hIPDel;
 
 HWND hSettingGroup;
 HWND hGameGroup;
-HWND hGameNameButton;
-HWND hGamePasswdButton;
+HWND hGameNameText;
+HWND hGameName;
+HWND hGamePasswdText;
+HWND hGamePasswd;
 HWND hWaitGroup;
-HWND hWaitLobbyButton;
-HWND hWaitGameButton;
+HWND hWaitLobbyText;
+HWND hWaitLobby;
+HWND hWaitGameText;
+HWND hWaitGame;
 
 HWND hStartStop;
 HWND hExit;
@@ -185,17 +189,21 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		hIPAdd = CreateWindow(TEXT("button"), TEXT("+"), WS_CHILD | WS_VISIBLE | WS_BORDER, 2 * LEFT_MARGIN, TOP_MARGIN + 142, 20, 20, hWnd, (HMENU)ID_BUTTON_ADD_IP, ((LPCREATESTRUCT)lParam)->hInstance, NULL);
 		hIPDel = CreateWindow(TEXT("button"), TEXT("-"), WS_CHILD | WS_VISIBLE | WS_BORDER, 3 * LEFT_MARGIN + 20, TOP_MARGIN + 142, 20, 20, hWnd, (HMENU)ID_BUTTON_REMOVE_IP, ((LPCREATESTRUCT)lParam)->hInstance, NULL);
 
-		hSettingGroup = CreateWindow(TEXT("button"), TEXT("Settings"), WS_CHILD | WS_VISIBLE | BS_GROUPBOX, LEFT_MARGIN + 80, TOP_MARGIN, 200, 172, hWnd, (HMENU)0, ((LPCREATESTRUCT)lParam)->hInstance, NULL);
-		hGameGroup = CreateWindow(TEXT("button"), TEXT("Game Info"), WS_CHILD | WS_VISIBLE | BS_GROUPBOX, 2 * LEFT_MARGIN + 80, 30, 180, 66, hWnd, (HMENU)0, ((LPCREATESTRUCT)lParam)->hInstance, NULL);
-		hGameNameButton = CreateWindow(TEXT("edit"), TEXT("Title:"), WS_CHILD | WS_VISIBLE, 3 * LEFT_MARGIN + 80, 50, 70, 16, hWnd, (HMENU)0, ((LPCREATESTRUCT)lParam)->hInstance, NULL);
-		hGamePasswdButton = CreateWindow(TEXT("edit"), TEXT("Password:"), WS_CHILD | WS_VISIBLE, 3 * LEFT_MARGIN + 80, 70, 70, 16, hWnd, (HMENU)0, ((LPCREATESTRUCT)lParam)->hInstance, NULL);
-		hWaitGroup = CreateWindow(TEXT("button"), TEXT("Waiting Info"), WS_CHILD | WS_VISIBLE | BS_GROUPBOX, 2 * LEFT_MARGIN + 80, 106, 180, 66, hWnd, (HMENU)0, ((LPCREATESTRUCT)lParam)->hInstance, NULL);
-		hWaitLobbyButton = CreateWindow(TEXT("edit"), TEXT("Lobby (s):"), WS_CHILD | WS_VISIBLE, 3 * LEFT_MARGIN + 80, 126, 70, 16, hWnd, (HMENU)0, ((LPCREATESTRUCT)lParam)->hInstance, NULL);
-		hWaitGameButton = CreateWindow(TEXT("edit"), TEXT("Room (s):"), WS_CHILD | WS_VISIBLE, 3 * LEFT_MARGIN + 80, 146, 70, 16, hWnd, (HMENU)0, ((LPCREATESTRUCT)lParam)->hInstance, NULL);
+		hSettingGroup = CreateWindow(TEXT("button"), TEXT("Settings"), WS_CHILD | WS_VISIBLE | BS_GROUPBOX, LEFT_MARGIN + 80, TOP_MARGIN, 170, 172, hWnd, (HMENU)0, ((LPCREATESTRUCT)lParam)->hInstance, NULL);
+		hGameGroup = CreateWindow(TEXT("button"), TEXT("Game Info"), WS_CHILD | WS_VISIBLE | BS_GROUPBOX, 2 * LEFT_MARGIN + 80, 30, 150, 66, hWnd, (HMENU)0, ((LPCREATESTRUCT)lParam)->hInstance, NULL);
+		hGameNameText = CreateWindow(TEXT("static"), TEXT("Title:"), WS_CHILD | WS_VISIBLE, 3 * LEFT_MARGIN + 80, 50, 70, 16, hWnd, (HMENU)0, ((LPCREATESTRUCT)lParam)->hInstance, NULL);
+		hGameName = CreateWindow(TEXT("edit"), TEXT("test"), WS_CHILD | WS_VISIBLE, 4 * LEFT_MARGIN + 150, 50, 50, 16, hWnd, (HMENU)0, ((LPCREATESTRUCT)lParam)->hInstance, NULL);
+		hGamePasswdText = CreateWindow(TEXT("static"), TEXT("Password:"), WS_CHILD | WS_VISIBLE, 3 * LEFT_MARGIN + 80, 70, 70, 16, hWnd, (HMENU)0, ((LPCREATESTRUCT)lParam)->hInstance, NULL);
+		hGamePasswd = CreateWindow(TEXT("edit"), TEXT("12345"), WS_CHILD | WS_VISIBLE, 4 * LEFT_MARGIN + 150, 70, 50, 16, hWnd, (HMENU)0, ((LPCREATESTRUCT)lParam)->hInstance, NULL);
+		hWaitGroup = CreateWindow(TEXT("button"), TEXT("Waiting Info"), WS_CHILD | WS_VISIBLE | BS_GROUPBOX, 2 * LEFT_MARGIN + 80, 106, 150, 66, hWnd, (HMENU)0, ((LPCREATESTRUCT)lParam)->hInstance, NULL);
+		hWaitLobbyText = CreateWindow(TEXT("static"), TEXT("Lobby (s):"), WS_CHILD | WS_VISIBLE, 3 * LEFT_MARGIN + 80, 126, 70, 16, hWnd, (HMENU)0, ((LPCREATESTRUCT)lParam)->hInstance, NULL);
+		hWaitLobby = CreateWindow(TEXT("edit"), TEXT("15"), WS_CHILD | WS_VISIBLE, 4 * LEFT_MARGIN + 150, 126, 50, 16, hWnd, (HMENU)0, ((LPCREATESTRUCT)lParam)->hInstance, NULL);
+		hWaitGameText = CreateWindow(TEXT("static"), TEXT("Room (s):"), WS_CHILD | WS_VISIBLE, 3 * LEFT_MARGIN + 80, 146, 70, 16, hWnd, (HMENU)0, ((LPCREATESTRUCT)lParam)->hInstance, NULL);
+		hWaitGame = CreateWindow(TEXT("edit"), TEXT("120"), WS_CHILD | WS_VISIBLE, 4 * LEFT_MARGIN + 150, 146, 50, 16, hWnd, (HMENU)0, ((LPCREATESTRUCT)lParam)->hInstance, NULL);
 
-		hStartStop = CreateWindow(TEXT("button"), TEXT("Start"), WS_CHILD | WS_VISIBLE | WS_BORDER, 11 + LEFT_MARGIN, 190, BUTTON_W, BUTTON_H, hWnd, (HMENU)ID_BUTTON_STARTSTOP, ((LPCREATESTRUCT)lParam)->hInstance, NULL);
-		hExit = CreateWindow(TEXT("button"), TEXT("Exit"), WS_CHILD | WS_VISIBLE | WS_BORDER, 21 + 2 * LEFT_MARGIN + BUTTON_W, 190, BUTTON_W, BUTTON_H, hWnd, (HMENU)ID_BUTTON_EXIT, ((LPCREATESTRUCT)lParam)->hInstance, NULL);
-		hAbout = CreateWindow(TEXT("button"), TEXT("About"), WS_CHILD | WS_VISIBLE | WS_BORDER, 31 + 3 * LEFT_MARGIN + 2 * BUTTON_W, 190, BUTTON_W, BUTTON_H, hWnd, (HMENU)ID_BUTTON_ABOUT, ((LPCREATESTRUCT)lParam)->hInstance, NULL);
+		hStartStop = CreateWindow(TEXT("button"), TEXT("Start"), WS_CHILD | WS_VISIBLE | WS_BORDER, LEFT_MARGIN, 190, BUTTON_W, BUTTON_H, hWnd, (HMENU)ID_BUTTON_STARTSTOP, ((LPCREATESTRUCT)lParam)->hInstance, NULL);
+		hExit = CreateWindow(TEXT("button"), TEXT("Exit"), WS_CHILD | WS_VISIBLE | WS_BORDER, 5 + 2 * LEFT_MARGIN + BUTTON_W, 190, BUTTON_W, BUTTON_H, hWnd, (HMENU)ID_BUTTON_EXIT, ((LPCREATESTRUCT)lParam)->hInstance, NULL);
+		hAbout = CreateWindow(TEXT("button"), TEXT("About"), WS_CHILD | WS_VISIBLE | WS_BORDER, 10 + 3 * LEFT_MARGIN + 2 * BUTTON_W, 190, BUTTON_W, BUTTON_H, hWnd, (HMENU)ID_BUTTON_ABOUT, ((LPCREATESTRUCT)lParam)->hInstance, NULL);
 		
 
 		_RPT1(0, "%s", "button");
