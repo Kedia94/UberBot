@@ -34,7 +34,6 @@ int CALLBACK WinMain(
 	_In_ int       nCmdShow
 )
 {
-	fprintf(stdout, "Hello, World!\n");
 	WNDCLASSEX wcex;
 
 	wcex.cbSize = sizeof(WNDCLASSEX);
@@ -54,7 +53,7 @@ int CALLBACK WinMain(
 	{
 		MessageBox(NULL,
 			_T("Call to RegisterClassEx failed!"),
-			_T("Windows Desktop Guided Tour"),
+			_T("Uber Room Finder"),
 			NULL);
 
 		return 1;
@@ -139,6 +138,7 @@ int CALLBACK WinMain(
 
 HWND hIPGroup;
 HWND hIPList;
+HWND hIP;
 HWND hIPAdd;
 HWND hIPDel;
 
@@ -158,6 +158,9 @@ HWND hStartStop;
 HWND hExit;
 HWND hAbout;
 
+HWND h_Wnd;
+HWND hChild;
+
 //  FUNCTION: WndProc(HWND, UINT, WPARAM, LPARAM)
 //
 //  PURPOSE:  Processes messages for the main window.
@@ -169,20 +172,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	PAINTSTRUCT ps;
 	HDC hdc;
 
-	LPCSTR WC_EDIT = "Hi";
-	int CONTROL_MARGIN = 10;
-	int EDIT_WIDTH = 300;
-	int CONTROL_HEIGHT = 24;
-	int ID_EDIT_SRC = 10;
-	int ID_BUTTON_OPEN_SRC = 20;
-	int FONT_SIZE = 16;
-	LPCSTR FONT_FACE = "Segoe UI";
-
 	switch (message)
 	{
 	case WM_CREATE:
 		hIPGroup = CreateWindow(TEXT("button"), TEXT("IP List"), WS_CHILD | WS_VISIBLE | BS_GROUPBOX, LEFT_MARGIN, TOP_MARGIN, 70, 172, hWnd, (HMENU)0, ((LPCREATESTRUCT)lParam)->hInstance, NULL);
-		hIPList = CreateWindow(TEXT("listbox"), NULL, WS_CHILD | WS_TABSTOP | WS_VISIBLE | LBS_MULTIPLESEL | LBS_SORT, 2 * LEFT_MARGIN, 30, 50, 112, hWnd, (HMENU)ID_IP_LIST, ((LPCREATESTRUCT)lParam)->hInstance, NULL);
+		hIPList = CreateWindow(TEXT("listbox"), NULL, WS_CHILD | WS_TABSTOP | WS_VISIBLE | LBS_MULTIPLESEL | LBS_SORT | WS_VSCROLL, 2 * LEFT_MARGIN, 30, 50, 100, hWnd, (HMENU)ID_IP_LIST, ((LPCREATESTRUCT)lParam)->hInstance, NULL);
 		{
 			SendMessage(hIPList, LB_ADDSTRING, 0, (LPARAM)"123");
 			SendMessage(hIPList, LB_ADDSTRING, 0, (LPARAM)"124");
@@ -190,8 +184,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			SendMessage(hIPList, LB_ADDSTRING, 0, (LPARAM)"182");
 			SendMessage(hIPList, LB_ADDSTRING, 0, (LPARAM)"165");
 			SendMessage(hIPList, LB_ADDSTRING, 0, (LPARAM)"172");
-			SendMessage(hIPList, LB_ADDSTRING, 0, (LPARAM)"173");
 		}
+		hIP = CreateWindow(TEXT("edit"), NULL, WS_CHILD | WS_TABSTOP | WS_VISIBLE | ES_CENTER | ES_NUMBER, 2 * LEFT_MARGIN, 128, 50, 20, hWnd, (HMENU)ID_IP_LIST, ((LPCREATESTRUCT)lParam)->hInstance, NULL);
+		SendMessage(hIP, EM_LIMITTEXT, (WPARAM)3, 0);
 		hIPAdd = CreateWindow(TEXT("button"), TEXT("+"), WS_CHILD | WS_TABSTOP | WS_VISIBLE | WS_BORDER, 2 * LEFT_MARGIN, TOP_MARGIN + 142, 20, 20, hWnd, (HMENU)ID_BUTTON_ADD_IP, ((LPCREATESTRUCT)lParam)->hInstance, NULL);
 		hIPDel = CreateWindow(TEXT("button"), TEXT("-"), WS_CHILD | WS_TABSTOP | WS_VISIBLE | WS_BORDER, 3 * LEFT_MARGIN + 20, TOP_MARGIN + 142, 20, 20, hWnd, (HMENU)ID_BUTTON_REMOVE_IP, ((LPCREATESTRUCT)lParam)->hInstance, NULL);
 
@@ -203,9 +198,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		hGamePasswd = CreateWindow(TEXT("edit"), TEXT("12345"), WS_CHILD | WS_TABSTOP | WS_VISIBLE, 4 * LEFT_MARGIN + 150, 70, 50, 16, hWnd, (HMENU)0, ((LPCREATESTRUCT)lParam)->hInstance, NULL);
 		hWaitGroup = CreateWindow(TEXT("button"), TEXT("Waiting Info"), WS_CHILD | WS_VISIBLE | BS_GROUPBOX, 2 * LEFT_MARGIN + 80, 106, 150, 66, hWnd, (HMENU)0, ((LPCREATESTRUCT)lParam)->hInstance, NULL);
 		hWaitLobbyText = CreateWindow(TEXT("static"), TEXT("Lobby (s):"), WS_CHILD | WS_VISIBLE, 3 * LEFT_MARGIN + 80, 126, 70, 16, hWnd, (HMENU)0, ((LPCREATESTRUCT)lParam)->hInstance, NULL);
-		hWaitLobby = CreateWindow(TEXT("edit"), TEXT("15"), WS_CHILD | WS_TABSTOP | WS_VISIBLE, 4 * LEFT_MARGIN + 150, 126, 50, 16, hWnd, (HMENU)0, ((LPCREATESTRUCT)lParam)->hInstance, NULL);
+		hWaitLobby = CreateWindow(TEXT("edit"), TEXT("15"), WS_CHILD | WS_TABSTOP | WS_VISIBLE | ES_NUMBER, 4 * LEFT_MARGIN + 150, 126, 50, 16, hWnd, (HMENU)0, ((LPCREATESTRUCT)lParam)->hInstance, NULL);
 		hWaitGameText = CreateWindow(TEXT("static"), TEXT("Room (s):"), WS_CHILD | WS_VISIBLE, 3 * LEFT_MARGIN + 80, 146, 70, 16, hWnd, (HMENU)0, ((LPCREATESTRUCT)lParam)->hInstance, NULL);
-		hWaitGame = CreateWindow(TEXT("edit"), TEXT("120"), WS_CHILD | WS_TABSTOP | WS_VISIBLE, 4 * LEFT_MARGIN + 150, 146, 50, 16, hWnd, (HMENU)0, ((LPCREATESTRUCT)lParam)->hInstance, NULL);
+		hWaitGame = CreateWindow(TEXT("edit"), TEXT("120"), WS_CHILD | WS_TABSTOP | WS_VISIBLE | ES_NUMBER, 4 * LEFT_MARGIN + 150, 146, 50, 16, hWnd, (HMENU)0, ((LPCREATESTRUCT)lParam)->hInstance, NULL);
 
 		hStartStop = CreateWindow(TEXT("button"), TEXT("Start"), WS_CHILD | WS_TABSTOP | WS_VISIBLE | WS_BORDER, LEFT_MARGIN, 190, BUTTON_W, BUTTON_H, hWnd, (HMENU)ID_BUTTON_STARTSTOP, ((LPCREATESTRUCT)lParam)->hInstance, NULL);
 		hExit = CreateWindow(TEXT("button"), TEXT("Exit"), WS_CHILD | WS_TABSTOP | WS_VISIBLE | WS_BORDER, 6 + 2 * LEFT_MARGIN + BUTTON_W, 190, BUTTON_W, BUTTON_H, hWnd, (HMENU)ID_BUTTON_EXIT, ((LPCREATESTRUCT)lParam)->hInstance, NULL);
@@ -220,19 +215,45 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			MessageBox(hWnd, "Start", "Developing", MB_OK);
 			break;
 		case ID_BUTTON_EXIT:
-			exit(0);
+			PostQuitMessage(0);
 			break;
-		case ID_BUTTON_ABOUT: 
-			MessageBox(hWnd, "Uber Room Finder v0.1\nMade By 官焊港没捞\nSpecial Thanks to HO", "About", MB_OK);
+		case ID_BUTTON_ABOUT:
+			MessageBox(hWnd, "Uber Room Finder v0.1\nMade By 官焊港没捞\nSpecial Thanks to HO", "About", MB_OK | MB_ICONINFORMATION);
 			break;
 		case ID_BUTTON_SETTING:
 			MessageBox(hWnd, "Setting", "Developing", MB_OK);
 			break;
 		case ID_BUTTON_ADD_IP:
-			MessageBox(hWnd, "ADD IP", "Developing", MB_OK);
+			char line[5];
+			char tempLine[5];
+			int k;
+			k = SendMessage(hIP, EM_GETLINE, 0, (LPARAM)line);
+			line[k] = 0;
+			k = atoi(line);
+			if (k < 100 || k > 199)
+				MessageBox(hWnd, "ERROR", "Put integer 100~199", MB_OK);
+			else
+			{
+				for (int i = 0; i < SendMessage(hIPList, LB_GETCOUNT, 0, 0); i++)
+				{
+					int tempK = SendMessage(hIPList, LB_GETTEXT, i, (LPARAM)tempLine);
+					tempLine[tempK] = 0;
+					if (strcmp(line, tempLine) == 0)
+						return 0;
+				}
+				SendMessage(hIPList, LB_ADDSTRING, 0, (LPARAM)line);
+			}
 			break;
 		case ID_BUTTON_REMOVE_IP:
-			MessageBox(hWnd, "DEL IP", "Developing", MB_OK);
+			for (int i = 0; i < SendMessage(hIPList, LB_GETCOUNT, 0, 0); i++)
+			{
+				if (SendMessage(hIPList, LB_GETSEL, i, 0))
+				{
+					SendMessage(hIPList, LB_DELETESTRING, i, 0);
+					i--;
+				}
+			}
+			//MessageBox(hWnd, "DEL IP", "Developing", MB_OK);
 			break;
 		}
 		break;
@@ -260,4 +281,36 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	}
 
 	return 0;
+}
+
+
+LRESULT CALLBACK WndProcAddIP(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
+{
+	HDC hdc;
+	PAINTSTRUCT ps;
+	RECT rt = { 0, 0, 400, 300 };
+
+	switch (iMessage)
+	{
+	case WM_CREATE:
+		hIPGroup = CreateWindow(TEXT("static"), TEXT("Hello, World!"), WS_CHILD | WS_VISIBLE, LEFT_MARGIN, TOP_MARGIN, 120, 20, hWnd, (HMENU)0, ((LPCREATESTRUCT)lParam)->hInstance, NULL);
+		break;
+	case WM_COMMAND:
+		switch (LOWORD(wParam))
+		{
+		case ID_BUTTON_STARTSTOP:
+			break;
+		}
+		break;
+	/*
+	case WM_PAINT:
+		hdc = BeginPaint(hWnd, &ps);
+
+		DrawText(hdc, str, -1, &rt, DT_EXPANDTABS);
+
+		EndPaint(hWnd, &ps);
+		return 0;
+		*/
+	}
+	return FALSE;
 }
