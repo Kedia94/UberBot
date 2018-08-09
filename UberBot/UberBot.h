@@ -12,6 +12,17 @@ struct ip_header {
 	int port;
 };
 
+struct threadArg {
+	HWND hWnd;
+	HWND hEdit;
+	int ipLen;
+	int *ip;
+	char title[10];
+	char passwd[10];
+	int lobbyWait;
+	int roomWait;
+};
+
 /* get first game room info */
 struct ip_header get_ip();
 HWND get_diablo();
@@ -19,3 +30,6 @@ void type_diablo(HWND hwnd, char* title, int title_len, int postfix, char* passw
 bool check_ip(int ip);
 void exit_diablo(HWND hwnd);
 void click_create_diablo(HWND hwnd);
+void AppendText(HWND hwnd, LPCTSTR szFormat, ...);
+
+DWORD WINAPI ThreadFunc(void* data);
