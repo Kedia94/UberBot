@@ -325,7 +325,7 @@ LRESULT CALLBACK WndProcPopup(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lP
 	case WM_CREATE:
 	{
 		CreateWindow(TEXT("button"), TEXT("Log"), WS_CHILD | WS_VISIBLE | BS_GROUPBOX, LEFT_MARGIN, TOP_MARGIN, 250, 170, hWnd, (HMENU)0, ((LPCREATESTRUCT)lParam)->hInstance, NULL);
-		PopupEdit = CreateWindow(TEXT("edit"), TEXT(""), WS_CHILD | WS_VISIBLE | WS_VSCROLL | ES_MULTILINE | ES_READONLY, 2 * LEFT_MARGIN, 3 * TOP_MARGIN, 230, 140, hWnd, (HMENU)0, ((LPCREATESTRUCT)lParam)->hInstance, NULL);
+		PopupEdit = CreateWindow(TEXT("edit"), TEXT(""), WS_CHILD | WS_VISIBLE | WS_VSCROLL | ES_MULTILINE | ES_READONLY, 2 * LEFT_MARGIN, 3 * TOP_MARGIN, 230, 145, hWnd, (HMENU)0, ((LPCREATESTRUCT)lParam)->hInstance, NULL);
 
 		HWND hExit = CreateWindow(TEXT("button"), TEXT("Exit"), WS_CHILD | WS_TABSTOP | WS_VISIBLE | WS_BORDER, 6 + 2 * LEFT_MARGIN + BUTTON_W, 190, BUTTON_W, BUTTON_H, hWnd, (HMENU)ID_BUTTON_EXIT, ((LPCREATESTRUCT)lParam)->hInstance, NULL);
 
@@ -350,8 +350,9 @@ LRESULT CALLBACK WndProcPopup(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lP
 			arg->ip = (int *)malloc(arg->ipLen * sizeof(int));
 			for (int i = 0; i < arg->ipLen; i++)
 			{
-				k = SendMessage(hIPList, EM_GETLINE, (WPARAM)i, (LPARAM)line);
+				k = SendMessage(hIPList, LB_GETTEXT, (WPARAM)i, (LPARAM)line);
 				line[k] = 0;
+				_RPT1(0, "hi %s", line);
 				arg->ip[i] = atoi(line);
 			}
 			/* Lobby Wait */
