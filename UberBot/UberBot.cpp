@@ -173,46 +173,137 @@ void AppendText(HWND hwnd, LPCTSTR szFormat, ...)
 	SendMessage(hwnd, EM_SCROLLCARET, 0, 0);
 }
 
+_int64 Delta(const SYSTEMTIME st1, const SYSTEMTIME st2) {
+	union timeunion {
+		FILETIME fileTime;
+		ULARGE_INTEGER ul;
+	};
+
+	timeunion ft1;
+	timeunion ft2;
+
+	SystemTimeToFileTime(&st1, &ft1.fileTime);
+	SystemTimeToFileTime(&st2, &ft2.fileTime);
+
+	return ft2.ul.QuadPart - ft1.ul.QuadPart;
+}
+
 DWORD WINAPI ThreadFunc(void* data) {
-	_RPT1(0, "THREAD] RUN", 0);
 	struct threadArg *arg = (struct threadArg *)data;
+	AppendText(arg->hEdit, "Starting ...");
 	//ips = get_ip();
 	//b += std::to_string(ips.ip[3]);
 	//fprintf(stdout, "%s\n", a);
 	//OutputDebugString(std::to_string(ips.ip[3]).c_str());
 
-	HWND h_wnd = get_diablo();
+	HWND hDia = get_diablo();
+	if (!hDia)
+	{
+		AppendText(arg->hEdit, "\r\nCould not find Diablo II");
+		ExitThread(0);
+	}
 	//if (!SetForegroundWindow(h_wnd)) {
 	//	OutputDebugStringA("Couldn't set application to foreground.");
 	//_RPT1(0, "%d\n", 1);
 	//}
-	char name[10] = "testid";
-	char passwd[10] = "123";
 	//click_create_diablo(h_wnd);
 	//type_diablo(h_wnd, name, 6, 12, passwd, 3);
 
 	//if (!check_ip(111))
 	//	exit_diablo(h_wnd);
-	int i = 0;
-	AppendText(arg->hEdit, "Name: %s\r\n", arg->title);
-	AppendText(arg->hEdit, "Passwd: %s\r\n", arg->passwd);
-	for (int j = 0; j < arg->ipLen; j++)
-	{
-		AppendText(arg->hEdit, "ip[%d]: %d\r\n", j, arg->ip[j]);
-	}
-	AppendText(arg->hEdit, "RoomWait: %d\r\n", arg->roomWait);
-	AppendText(arg->hEdit, "LobbyWait: %d\r\n", arg->lobbyWait);
-	AppendText(arg->hEdit, "Thread: %d\r\n", i);
-	while (1) {
-		i++;
-		Sleep(1000);
-		AppendText(arg->hEdit, "this is %d\r\n", i);
-		if (i == 10)
+
+	/* Find Room Loop */
+	int postfix = 0;		// Postfix of game name
+	int state = E_LOBBY;	// Initial State
+	SYSTEMTIME prev, now;
+
+	_int64 timeInterval = 1000; // Millis
+
+	int seconds = 0;
+	GetSystemTime(&prev);
+
+	bool Exit = true;
+	AppendText(arg->hEdit, "\r\n==========================");
+	
+	while (Exit) {
+		Sleep(100);
+		GetSystemTime(&now);
+		if (Delta(prev, now) < timeInterval * 10000)
+		{
+			continue;
+		}
+		seconds++;
+
+		switch (state)
+		{
+		case E_LOBBY_WAIT:
+			// Wait in the Lobby
+			if (seconds < arg->lobbyWait)
+				break;
+
+			seconds = 0;
+			state = E_LOBBY;
+
 			break;
+		case E_LOBBY:
+			// State: Game Lobby
+			postfix++;
 
+			// Make Game
+			click_create_diablo(hDia);
+			type_diablo(hDia, arg->title, strlen(arg->title), postfix, arg->passwd, strlen(arg->passwd));
+
+			state = E_WAITING_OPEN_GAME;
+			break;
+		case E_WAITING_OPEN_GAME:
+			// State: Wait creating game
+			// TODO: Check Game Connected
+
+			break;
+		case E_GAME_CONNECTED:
+			// State: Door is opening
+			// TODO: Check is Timeout
+			break;
+		case E_GAME:
+			// State: In the Game Room
+			state = E_GAME_OUT;
+			break;
+		case E_GAME_SUCCEED:
+			// State: Found Uber Room
+			Exit = false;
+			AppendText(arg->hEdit, "\r\n==========================");
+			AppendText(arg->hEdit, "\r\nSUCCEED. Good Luck!");
+			continue;
+			break;
+		case E_GAME_OUT:
+			// State: Quit Game
+			if (seconds < arg->roomWait)
+				break;
+			// TODO: Check IP
+			// TODO: Quit Game
+			exit_diablo(hDia);
+			state = E_LOBBY_WAIT;
+			seconds = 0;
+			break;
+		case E_GAME_TIMEOUT:
+			// State: Door didn't open
+			break;
+		case E_IS_BAN:
+			// State: Might be 3600...
+			break;
+		case E_BAN:
+			// State: Yes, it is 3600
+			Exit = false;
+			AppendText(arg->hEdit, "\r\n==========================");
+			AppendText(arg->hEdit, "\r\nFAILED");
+			continue;
+			break;
+		}
+
+
+		GetSystemTime(&prev);
 	}
 
-	AppendText(arg->hEdit, "FINISHED", 0);
 	SendMessage(arg->hWnd, WM_COMMAND, ID_LOG_END, 0);
 	ExitThread(0);
 
