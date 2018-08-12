@@ -7,14 +7,19 @@
 #include "Main.h"
 #include "UberBot.h"
 
-struct ip_header get_ip()
+struct diablo_ip ipList[IP_LIST_LEN];
+void initIpList()
+{
+	memset(ipList, 0, sizeof(struct diablo_ip) * 50);
+}
+
+void readIpList()
 {
 	FILE *fpipe;
 	char line[BUFFER_SIZE];
 	memset(line, 0, BUFFER_SIZE);
-	char port[10];
-	_itoa_s(TARGET_PORT, port, 10, 10);
-	if (0 == (fpipe = (FILE*)_popen(("netstat -n |findstr " + std::string(port)).c_str(), "r")))
+	int count = 0;
+	if (0 == (fpipe = (FILE*)_popen(("netstat -n |findstr " + std::string(TARGET_IP1) + "." + TARGET_IP2 + "." + TARGET_IP3).c_str(), "r")))
 	{
 		perror("popen() failed.");
 		exit(1);
@@ -27,6 +32,8 @@ struct ip_header get_ip()
 		char *ptr = strtok_s(line, " ", &next_ptr);
 		char *this_ip = strtok_s(NULL, " ", &next_ptr);
 		char *target = strtok_s(NULL, " ", &next_ptr);
+		char *status = strtok_s(NULL, " ", &next_ptr);
+
 
 		char *target_port;
 		char *target_ip1 = strtok_s(target, ".", &target_port);
@@ -34,34 +41,30 @@ struct ip_header get_ip()
 		char *target_ip3 = strtok_s(NULL, ".", &target_port);
 		char *target_ip4 = strtok_s(NULL, ":", &target_port);
 
-		if (strcmp(target_port, port) == 0
-			&& strcmp(target_ip1, TARGET_IP1) == 0
+		if (strcmp(target_ip1, TARGET_IP1) == 0
 			&& strcmp(target_ip2, TARGET_IP2) == 0
 			&& strcmp(target_ip3, TARGET_IP3) == 0)
 		{
-			_pclose(fpipe);
-			struct ip_header ret;
-			ret.ip[0] = atoi(target_ip1);
-			ret.ip[1] = atoi(target_ip2);
-			ret.ip[2] = atoi(target_ip3);
-			ret.ip[3] = atoi(target_ip4);
-			ret.port = atoi(target_port);
+			ipList[count].ip4 = atoi(target_ip4);
+			ipList[count].port = atoi(target_port);
+			if (strncmp(status, "ESTABLISHED", 11) == 0)
+				ipList[count].status = P_ESTABLISHED;
+			else
+				ipList[count].status = P_TIMEWAIT;
+			count++;
 
-			return ret;
 		}
 
 		memset(line, 0, BUFFER_SIZE);
 	}
-	_pclose(fpipe);
 
-	struct ip_header ret;
-	memset(&ret, 0, sizeof(ret));
-	return ret;
+	memset(ipList + count, 0, (IP_LIST_LEN - count));
+
 }
 
 HWND get_diablo()
 {
-	return FindWindow(NULL, "Diablo II");
+	return FindWindow(NULL, TEXT("Diablo II"));
 }
 
 void type_diablo(HWND hwnd, char* title, int title_len, int postfix, char* passwd, int passwd_len)
@@ -104,11 +107,33 @@ void type_diablo(HWND hwnd, char* title, int title_len, int postfix, char* passw
 	Sleep(50);
 }
 
-bool check_ip(int ip)
+int getRoomIp()
 {
-	struct ip_header getip = get_ip();
-	return (ip == getip.ip[3]);
+	for (int i = 0; i < IP_LIST_LEN; i++)
+	{
+		if (ipList[i].ip4 == 0)
+			break;
+		if (ipList[i].port == 4000 && ipList[i].status == P_ESTABLISHED)
+			return ipList[i].ip4;
+	}
+
+	return -1;
 }
+
+int getLobbyIp()
+{
+	for (int i = 0; i < IP_LIST_LEN; i++)
+	{
+		if (ipList[i].ip4 == 0)
+			break;
+		if (ipList[i].ip4 > 90 && ipList[i].port == 6112 && ipList[i].status == P_ESTABLISHED)
+			return ipList[i].ip4;
+	}
+
+	return -1;
+
+}
+
 
 int MakeLParam(int LoWord, int HiWord)
 {
@@ -191,10 +216,12 @@ _int64 Delta(const SYSTEMTIME st1, const SYSTEMTIME st2) {
 DWORD WINAPI ThreadFunc(void* data) {
 	struct threadArg *arg = (struct threadArg *)data;
 	AppendText(arg->hEdit, "Starting ...");
-	//ips = get_ip();
-	//b += std::to_string(ips.ip[3]);
-	//fprintf(stdout, "%s\n", a);
-	//OutputDebugString(std::to_string(ips.ip[3]).c_str());
+
+	if (strlen(arg->title) == 0)
+	{
+		AppendText(arg->hEdit, "\r\nPlease type title");
+		ExitThread(0);
+	}
 
 	HWND hDia = get_diablo();
 	if (!hDia)
@@ -202,15 +229,6 @@ DWORD WINAPI ThreadFunc(void* data) {
 		AppendText(arg->hEdit, "\r\nCould not find Diablo II");
 		ExitThread(0);
 	}
-	//if (!SetForegroundWindow(h_wnd)) {
-	//	OutputDebugStringA("Couldn't set application to foreground.");
-	//_RPT1(0, "%d\n", 1);
-	//}
-	//click_create_diablo(h_wnd);
-	//type_diablo(h_wnd, name, 6, 12, passwd, 3);
-
-	//if (!check_ip(111))
-	//	exit_diablo(h_wnd);
 
 	/* Find Room Loop */
 	int postfix = 0;		// Postfix of game name
@@ -220,6 +238,7 @@ DWORD WINAPI ThreadFunc(void* data) {
 	_int64 timeInterval = 1000; // Millis
 
 	int seconds = 0;
+	int stack = 0;
 	GetSystemTime(&prev);
 
 	bool Exit = true;
@@ -237,56 +256,137 @@ DWORD WINAPI ThreadFunc(void* data) {
 		switch (state)
 		{
 		case E_LOBBY_WAIT:
+		{
 			// Wait in the Lobby
-			if (seconds < arg->lobbyWait)
+			if (seconds < arg->lobbyWait + DEFAULT_WAIT_ROOM_OUT)
 				break;
+			readIpList();
+			int ip = getLobbyIp();
+			if (ip < 0)
+			{
+				seconds = 0;
+				break;
+			}
 
-			seconds = 0;
 			state = E_LOBBY;
 
+			seconds = 0;
 			break;
+		}
 		case E_LOBBY:
 			// State: Game Lobby
 			postfix++;
+			AppendText(arg->hEdit, "\r\nTry %d", postfix);
 
 			// Make Game
 			click_create_diablo(hDia);
 			type_diablo(hDia, arg->title, strlen(arg->title), postfix, arg->passwd, strlen(arg->passwd));
 
 			state = E_WAITING_OPEN_GAME;
+
+			seconds = 0;
 			break;
 		case E_WAITING_OPEN_GAME:
+		{
 			// State: Wait creating game
+
+			if (seconds < DEFAULT_WAIT_GAME_TICK) // || Check game connected
+				break;
+
 			// TODO: Check Game Connected
+			readIpList();
+			int i = getRoomIp();
+
+			if (i > 0)
+			{
+				stack = 0;
+				state = E_GAME_CONNECTED;
+			}
+			else if (stack > DEFAULT_WAIT_GAME / DEFAULT_WAIT_GAME_TICK)
+			{
+				seconds = 0;
+				stack = 0;
+				state = E_GAME_TIMEOUT;
+			}
+			else
+			{
+				seconds = 0;
+				stack++;
+			}
 
 			break;
+		}
 		case E_GAME_CONNECTED:
 			// State: Door is opening
-			// TODO: Check is Timeout
+			if (seconds < DEFAULT_DOOR_WAIT)
+				break;
+
+			state = E_GAME;
+			seconds = 0;
+
 			break;
 		case E_GAME:
+		{
 			// State: In the Game Room
-			state = E_GAME_OUT;
+			readIpList();
+			int ip = getRoomIp();
+			bool temp = false;
+			for (int i = 0; i < arg->ipLen; i++)
+				if (arg->ip[i] == ip)
+					temp = true;
+
+			if (temp)
+				state = E_GAME_SUCCEED;
+			else
+				state = E_GAME_OUT;
+
+			seconds = 0;
 			break;
+		}
 		case E_GAME_SUCCEED:
 			// State: Found Uber Room
 			Exit = false;
 			AppendText(arg->hEdit, "\r\n==========================");
 			AppendText(arg->hEdit, "\r\nSUCCEED. Good Luck!");
-			continue;
+			AppendText(arg->hEdit, "\r\n   %s%d / %s", arg->title, postfix, arg->passwd);
 			break;
 		case E_GAME_OUT:
+		{
 			// State: Quit Game
+
+			readIpList();
+			int ip = getRoomIp();
+			if (ip < 0)
+			{
+				seconds = 0;
+				state = E_GAME_TIMEOUT;
+				break;
+			}
+
 			if (seconds < arg->roomWait)
 				break;
-			// TODO: Check IP
-			// TODO: Quit Game
+			// Quit Game
 			exit_diablo(hDia);
+			Sleep(2000);
+			readIpList();
+			ip = getRoomIp();
+			if (ip > 0)
+			{
+				Sleep(1000);
+				readIpList();
+				ip = getRoomIp();
+			}
+
 			state = E_LOBBY_WAIT;
+
 			seconds = 0;
 			break;
+		}
 		case E_GAME_TIMEOUT:
 			// State: Door didn't open
+			Sleep(5000);
+			seconds = 0;
+			state = E_LOBBY_WAIT;
 			break;
 		case E_IS_BAN:
 			// State: Might be 3600...
@@ -296,7 +396,6 @@ DWORD WINAPI ThreadFunc(void* data) {
 			Exit = false;
 			AppendText(arg->hEdit, "\r\n==========================");
 			AppendText(arg->hEdit, "\r\nFAILED");
-			continue;
 			break;
 		}
 

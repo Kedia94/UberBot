@@ -14,7 +14,7 @@
 // Global variables
 std::string b = "Hello";
 char a[10] = "Hello";
-struct ip_header ips;
+// struct ip_header ips;
 
 // The main window class name.
 static TCHAR szWindowClass[] = _T("UberApp");
@@ -181,12 +181,12 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		hIPGroup = CreateWindow(TEXT("button"), TEXT("IP List"), WS_CHILD | WS_VISIBLE | BS_GROUPBOX, LEFT_MARGIN, TOP_MARGIN, 70, 172, hWnd, (HMENU)0, ((LPCREATESTRUCT)lParam)->hInstance, NULL);
 		hIPList = CreateWindow(TEXT("listbox"), NULL, WS_CHILD | WS_TABSTOP | WS_VISIBLE | LBS_MULTIPLESEL | LBS_SORT | WS_VSCROLL, 2 * LEFT_MARGIN, 30, 50, 100, hWnd, (HMENU)ID_IP_LIST, ((LPCREATESTRUCT)lParam)->hInstance, NULL);
 		{
-			SendMessage(hIPList, LB_ADDSTRING, 0, (LPARAM)"123");
-			SendMessage(hIPList, LB_ADDSTRING, 0, (LPARAM)"124");
-			SendMessage(hIPList, LB_ADDSTRING, 0, (LPARAM)"100");
-			SendMessage(hIPList, LB_ADDSTRING, 0, (LPARAM)"182");
-			SendMessage(hIPList, LB_ADDSTRING, 0, (LPARAM)"165");
-			SendMessage(hIPList, LB_ADDSTRING, 0, (LPARAM)"172");
+			SendMessage(hIPList, LB_ADDSTRING, 0, (LPARAM)"101");
+			SendMessage(hIPList, LB_ADDSTRING, 0, (LPARAM)"102");
+			SendMessage(hIPList, LB_ADDSTRING, 0, (LPARAM)"103");
+			SendMessage(hIPList, LB_ADDSTRING, 0, (LPARAM)"104");
+			SendMessage(hIPList, LB_ADDSTRING, 0, (LPARAM)"105");
+			SendMessage(hIPList, LB_ADDSTRING, 0, (LPARAM)"106");
 		}
 		hIP = CreateWindow(TEXT("edit"), NULL, WS_CHILD | WS_TABSTOP | WS_VISIBLE | ES_CENTER | ES_NUMBER, 2 * LEFT_MARGIN, 130, 50, 16, hWnd, (HMENU)ID_IP_LIST, ((LPCREATESTRUCT)lParam)->hInstance, NULL);
 		SendMessage(hIP, EM_LIMITTEXT, (WPARAM)3, 0);
@@ -216,7 +216,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		{
 		case ID_BUTTON_STARTSTOP:
 		{
-			if (get_diablo())
+			if (!get_diablo())
 				MessageBox(hWnd, "No Diablo II Detected", "ERROR", MB_OK | MB_ICONERROR);
 			else
 			{
@@ -289,15 +289,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		
 	case WM_PAINT:
 		hdc = BeginPaint(hWnd, &ps);
-		/*
-		// Here your application is laid out.
-		// For this introduction, we just print out "Hello, Windows desktop!"
-		// in the top left corner.
-		TextOut(hdc,
-			5, 5,
-			b.c_str(), strlen(b.c_str()));
-		// End application-specific layout section.
-		*/
 		EndPaint(hWnd, &ps);
 		break;
 		
