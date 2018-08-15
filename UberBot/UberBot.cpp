@@ -330,6 +330,7 @@ DWORD WINAPI ThreadFunc(void* data) {
 			// State: In the Game Room
 			readIpList();
 			int ip = getRoomIp();
+			AppendText(arg->hEdit, "\tGot %d", ip);
 			bool temp = false;
 			for (int i = 0; i < arg->ipLen; i++)
 				if (arg->ip[i] == ip)
@@ -353,7 +354,11 @@ DWORD WINAPI ThreadFunc(void* data) {
 		case E_GAME_OUT:
 		{
 			// State: Quit Game
-
+			int i = arg->roomWait / DEFAULT_WAIT_ROOM_TICK;
+			if (seconds % DEFAULT_WAIT_ROOM_TICK != 0 && seconds != arg->roomWait)
+			{
+				break;
+			}
 			readIpList();
 			int ip = getRoomIp();
 			if (ip < 0)
@@ -362,7 +367,6 @@ DWORD WINAPI ThreadFunc(void* data) {
 				state = E_GAME_TIMEOUT;
 				break;
 			}
-
 			if (seconds < arg->roomWait)
 				break;
 			// Quit Game
